@@ -1,0 +1,6 @@
+- hosts: localhost
+  roles:
+    - urpg-db
+    - urpg-server
+    - urpg-httpd
+    - urpg-webapps

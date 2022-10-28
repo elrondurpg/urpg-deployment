@@ -1,0 +1,29 @@
+- name: Install MariaDB
+  ansible.builtin.yum:
+    name: mariadb-server
+    state: present
+
+- name: Enable lower case table names in my.cnf
+  become: yes
+  lineinfile:
+    dest: '/etc/my.cnf'
+    line: 'lower_case_table_names = 1'
+    firstmatch: yes
+    insertafter: '.mysqld.'
+    state: present
+    backup: true
+
+# Verify with:
+# sudo systemctl list-unit-files | grep enabled
+- name: Configure MariaDB to start on server boot
+  ansible.builtin.service:
+    name: mariadb
+    enabled: yes
+
+# Verify with:
+# ps -ef | grep mariadb
+- name: Start MariaDB
+  become: yes
+  ansible.builtin.service: 
+    name: mariadb
+    state: started

@@ -1,0 +1,9 @@
+- name: Create URPG DB
+  community.mysql.mysql_db:
+    name: urpg_db
+
+- name: Create the URPG service user
+  community.mysql.mysql_user:
+    name: urpg_secure
+    password: '{{ urpg_db_password | mandatory }}'
+    priv: 'urpg_db.*:SELECT,INSERT,UPDATE,CREATE,DELETE'

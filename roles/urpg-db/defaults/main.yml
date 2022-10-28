@@ -1,0 +1,4 @@
+mysql_user_home: "{{ ansible_env.HOME}}"
+mysql_remove_remote_root: true
+mysql_remove_anonymous_users: true
+mysql_remove_test_database: true

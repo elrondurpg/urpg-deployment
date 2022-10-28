@@ -1,0 +1,6 @@
+- name: Perform DB-related setup tasks
+  include_tasks: "{{ item }}"
+  loop:
+    - install.yml
+    - secure.yml
+    - create_urpg_db.yml

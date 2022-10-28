@@ -1,0 +1,45 @@
+- name: Get latest version
+  uri:
+    url: "https://api.github.com/repos/{{github_user}}/{{github_repo}}/releases/latest"
+    return_content: yes
+    headers:
+      Authorization: "token {{ artifact_download_token }}"
+  register: github_response
+
+- debug:
+    msg: "{{ github_response.json.assets }}"
+
+- set_fact:
+    binary_asset_url: "{{  github_response.json.assets|json_query(query) }}"
+  vars:
+    query: "[?starts_with(name,'{{artifact_id}}')].url | [0]"   
+
+- name: Get Binary asset's location
+  uri:
+    url: "{{ binary_asset_url }}"
+    return_content: no
+    follow_redirects: none
+    status_code: 302
+    headers:
+      Authorization: "token {{ artifact_download_token }}"
+      Accept: "application/octet-stream"
+  register: assets
+
+- name: Create urpg-server folder
+  file: 
+    path: "{{ ansible_env.HOME}}/urpg-server"
+    state: directory
+
+- name: Download binary
+  get_url:
+    url: "{{ assets.location }}"
+    dest: "{{ ansible_env.HOME}}/urpg-server/{{ artifact_id }}.latest.jar"
+    mode: 0755
+
+- name: Start URPG Server
+  shell: "nohup java -jar {{ ansible_env.HOME}}/urpg-server/{{ artifact_id }}.latest.jar &"
+  environment: 
+    CLIENT_ID: "{{ urpg_server_client_id }}"
+    CLIENT_SECRET: "{{ urpg_server_client_secret }}"
+    REDIRECT_URI: "{{ urpg_server_redirect_uri }}"
+    URPG_DB_PASSWORD: "{{ urpg_db_password }}"
