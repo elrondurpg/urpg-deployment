@@ -1,4 +1,4 @@
-- name: Get latest version
+- name: "Get the latest release metadata of {{ artifact_id }}"
   uri:
     url: "https://api.github.com/repos/{{github_user}}/{{github_repo}}/releases/latest"
     return_content: yes
@@ -6,15 +6,12 @@
       Authorization: "token {{ artifact_download_token }}"
   register: github_response
 
-- debug:
-    msg: "{{ github_response.json.assets }}"
-
 - set_fact:
     binary_asset_url: "{{  github_response.json.assets|json_query(query) }}"
   vars:
-    query: "[?starts_with(name,'{{artifact_id}}')].url | [0]"   
+    query: "[?starts_with(name,'{{ artifact_id }}')].url | [0]"   
 
-- name: Get Binary asset's location
+- name: "Get the latest release URI of {{ artifact_id }}"
   uri:
     url: "{{ binary_asset_url }}"
     return_content: no
@@ -27,19 +24,41 @@
 
 - name: Create urpg-server folder
   file: 
-    path: "{{ ansible_env.HOME}}/urpg-server"
+    path: "{{ ansible_env.HOME }}/urpg-server"
     state: directory
 
-- name: Download binary
+- name: "Download the latest release of {{ artifact_id }}"
   get_url:
     url: "{{ assets.location }}"
-    dest: "{{ ansible_env.HOME}}/urpg-server/{{ artifact_id }}.latest.jar"
+    dest: "{{ jar_destination }}"
     mode: 0755
 
-- name: Start URPG Server
-  shell: "nohup java -jar {{ ansible_env.HOME}}/urpg-server/{{ artifact_id }}.latest.jar &"
-  environment: 
-    CLIENT_ID: "{{ urpg_server_client_id }}"
-    CLIENT_SECRET: "{{ urpg_server_client_secret }}"
-    REDIRECT_URI: "{{ urpg_server_redirect_uri }}"
-    URPG_DB_PASSWORD: "{{ urpg_db_password }}"
+- name: Install URPG Server service file
+  become: yes
+  template:
+    src: 'urpgserver.service.j2'
+    dest: '/etc/systemd/system/multi-user.target.wants/urpgserver.service'
+    mode: '644'
+    owner: root
+    group: root
+  register: service_file
+
+- name: Invoke systemctl daemon reload if URPG Server service file was changed
+  become: yes
+  systemd:
+    daemon_reload: yes
+  when: service_file.changed
+
+- name: Ensure URPG Server is running; don't restart if it's already running and the service file wasn't changed
+  become: yes
+  service:
+    name: urpgserver 
+    state: started
+  when: service_file.changed == false
+
+- name: Restart URPG Server because the config file changed
+  become: yes
+  service:
+    name: urpgserver
+    state: restarted
+  when: service_file.changed

@@ -1,0 +1,23 @@
+[Unit]
+Description=URPG Server application
+After=syslog.target network.target
+
+[Service]
+SuccessExitStatus=143
+
+User=ec2-user
+Group=ec2-user
+
+Type=simple
+
+Environment="JAVA_HOME={{ java_home }}"
+Environment="URPG_DB_PASSWORD={{ urpg_db_password }}"
+Environment="CLIENT_ID={{ urpg_server_client_id }}"
+Environment="CLIENT_SECRET={{ urpg_server_client_secret }}"
+Environment="REDIRECT_URI={{ urpg_server_redirect_uri }}"
+WorkingDirectory={{ working_directory }}
+ExecStart={{ java_home }}/bin/java -jar {{ jar_destination }}
+ExecStop=/bin/kill -15 $MAINPID
+
+[Install]
+WantedBy=multi-user.target

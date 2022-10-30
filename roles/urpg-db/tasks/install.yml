@@ -1,5 +1,5 @@
 - name: Install MariaDB
-  ansible.builtin.yum:
+  yum:
     name: mariadb-server
     state: present
 
@@ -16,7 +16,7 @@
 # Verify with:
 # sudo systemctl list-unit-files | grep enabled
 - name: Configure MariaDB to start on server boot
-  ansible.builtin.service:
+  service:
     name: mariadb
     enabled: yes
 
@@ -24,6 +24,6 @@
 # ps -ef | grep mariadb
 - name: Start MariaDB
   become: yes
-  ansible.builtin.service: 
+  service: 
     name: mariadb
     state: started

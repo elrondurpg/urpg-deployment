@@ -1,0 +1,7 @@
+github_user: elrondurpg
+github_repo: urpg-webapps
+artifact_id: urpg-webapps
+urpg_httpd_path: /var/www/html
+archive_name: "{{ artifact_id }}.active.zip"
+download_path: "{{ ansible_env.HOME }}/{{ archive_name }}"
+unarchive_path: "{{ urpg_httpd_path }}/{{ artifact_id }}"
