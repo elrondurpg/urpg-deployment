@@ -3,4 +3,5 @@
     - urpg-db
     - urpg-server
     - urpg-httpd
+    - urpg-middleware
     - urpg-webapps

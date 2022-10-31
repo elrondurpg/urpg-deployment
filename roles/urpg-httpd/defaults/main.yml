@@ -1,4 +1,3 @@
-urpg_middleware_path: /var/includes/php
 urpg_server_port: 8080
 urpg_webapps_protocol: http://
 urpg_webapps_host: demo.pokemonurpg.com

@@ -1,0 +1,52 @@
+- name: Install Remi Repo with Yum 
+  become: yes
+  yum:
+    name: https://rpms.remirepo.net/enterprise/remi-release-7.rpm
+    state: present
+
+- name: Install PHP with Yum 
+  become: yes
+  yum:
+    name: php82.x86_64
+    state: present
+  register: php_yum
+
+- name: Install PHP CLI with Yum 
+  become: yes
+  yum:
+    name: php82-php-cli.x86_64
+    state: present
+  register: php_cli_yum
+
+- name: Install PHP Apache module with Yum 
+  become: yes
+  yum:
+    name: php82-php.x86_64
+    state: present
+  register: php_apache_yum
+
+- name: Install PHP FPM with Yum 
+  become: yes
+  yum:
+    name: php82-php-fpm.x86_64
+    state: present
+  register: php_fpm_yum
+
+- name: Configure PHP-FPM to start on server boot
+  become: yes
+  service:
+    name: php82-php-fpm
+    enabled: yes
+
+- name: Ensure PHP-FPM is running
+  become: yes
+  service:
+    name: php82-php-fpm
+    state: started
+
+- name: Restart HTTPD because the config file changed
+  become: yes
+  service:
+    name: httpd
+    state: restarted
+  when: php_yum.changed or php_cli_yum.changed or php_apache_yum.changed or php_fpm_yum.changed

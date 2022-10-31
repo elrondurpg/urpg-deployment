@@ -1,0 +1,5 @@
+- name: Perform middleware-related setup tasks
+  include_tasks: "{{ item }}"
+  loop:
+    - install-php.yml
+    - install-middleware.yml

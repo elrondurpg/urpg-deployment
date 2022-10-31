@@ -1,0 +1,58 @@
+- name: "Get the latest release metadata of {{ artifact_id }}"
+  uri:
+    url: "https://api.github.com/repos/{{github_user}}/{{github_repo}}/releases/latest"
+    return_content: yes
+    headers:
+      Authorization: "token {{ artifact_download_token }}"
+  register: github_response
+
+- set_fact:
+    binary_asset_url: "{{  github_response.json.assets|json_query(query) }}"
+  vars:
+    query: "[?starts_with(name,'{{ artifact_id }}')].url | [0]"  
+
+- name: "Get the latest release URI of {{ artifact_id }}"
+  uri:
+    url: "{{ binary_asset_url }}"
+    return_content: no
+    follow_redirects: none
+    status_code: 302
+    headers:
+      Authorization: "token {{ artifact_download_token }}"
+      Accept: "application/octet-stream"
+  register: assets
+
+- name: "Download the latest release of {{ artifact_id }}"
+  get_url:
+    url: "{{ assets.location }}"
+    dest: "{{ download_path }}"
+    mode: 0755
+  register: artifact_archive
+
+- name: Remove {{ artifact_id }} folder on the webserver
+  become: yes
+  file: 
+    path: "{{ unarchive_path }}"
+    state: absent
+  when: artifact_archive.changed
+
+- name: Check whether the {{ artifact_id }} folder on the webserver exists
+  stat: 
+    path: "{{ unarchive_path }}"
+  register: unarchive_path_data
+
+- name: Create {{ artifact_id }} folder on the webserver
+  become: yes
+  file: 
+    path: "{{ unarchive_path }}"
+    state: directory
+  when: artifact_archive.changed or not unarchive_path_data.stat.exists
+  register: unarchive_folder_status
+
+- name: Unarchive the contents of the artifact into the {{ artifact_id }} folder on the webserver
+  become: yes
+  unarchive:
+    remote_src: yes
+    src: "{{ download_path }}"
+    dest: "{{ unarchive_path }}"
+  when: artifact_archive.changed or unarchive_folder_status.changed
