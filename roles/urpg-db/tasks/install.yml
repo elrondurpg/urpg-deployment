@@ -1,4 +1,5 @@
 - name: Install MariaDB
+  become: yes
   yum:
     name: mariadb-server
     state: present
@@ -16,6 +17,7 @@
 # Verify with:
 # sudo systemctl list-unit-files | grep enabled
 - name: Configure MariaDB to start on server boot
+  become: yes
   service:
     name: mariadb
     enabled: yes

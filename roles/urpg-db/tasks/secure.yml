@@ -5,6 +5,7 @@
     password: '{{ mysql_root_password | mandatory }}'
     state: present
     login_unix_socket: "{{ login_unix_socket | default(omit) }}"
+    login_user: root
   when: mysql_root_password is defined
 
 - name: Install MySQL configuration file with credentials
