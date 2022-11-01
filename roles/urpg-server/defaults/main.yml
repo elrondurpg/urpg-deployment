@@ -1,7 +1,8 @@
+application_group_name: urpgserver
+application_user_name: urpgserver
 github_user: elrondurpg
 github_repo: urpg-server
 artifact_id: urpg-server
-working_directory: "{{ ansible_env.HOME }}/urpg-server"
 jar_name: "{{ artifact_id }}.active.jar"
-jar_destination: "{{ working_directory }}/{{ jar_name }}"
 java_home: /usr
+download_path: "/opt/{{ artifact_id }}"

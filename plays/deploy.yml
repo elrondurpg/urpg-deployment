@@ -1,7 +1,12 @@
 - hosts: localhost
   roles:
-    - urpg-db
-    - urpg-server
-    - urpg-httpd
-    - urpg-middleware
-    - urpg-webapps
+    - role: urpg-db
+      tags: [ db, backend ]
+    - role: urpg-server
+      tags: [ java, server, urpgserver, urpg-server, backend ]
+    - role: urpg-httpd
+      tags: [ httpd, frontend ]
+    - role: urpg-middleware
+      tags: [ middleware, php, frontend ]
+    - role: urpg-webapps
+      tags: [ angular, web, webapps, urpgwebapps, urpg-webapps, frontend ]

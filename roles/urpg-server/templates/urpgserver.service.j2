@@ -5,8 +5,8 @@ After=syslog.target network.target
 [Service]
 SuccessExitStatus=143
 
-User=ec2-user
-Group=ec2-user
+User={{ application_user_name }}
+Group={{ application_group_name }}
 
 Type=simple
 
@@ -15,8 +15,8 @@ Environment="URPG_DB_PASSWORD={{ urpg_db_password }}"
 Environment="CLIENT_ID={{ urpg_server_client_id }}"
 Environment="CLIENT_SECRET={{ urpg_server_client_secret }}"
 Environment="REDIRECT_URI={{ urpg_server_redirect_uri }}"
-WorkingDirectory={{ working_directory }}
-ExecStart={{ java_home }}/bin/java -jar {{ jar_destination }}
+WorkingDirectory={{ download_path }}
+ExecStart={{ java_home }}/bin/java -jar {{ download_path }}/{{ jar_name }}
 ExecStop=/bin/kill -15 $MAINPID
 
 [Install]

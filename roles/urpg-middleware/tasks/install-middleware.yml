@@ -22,10 +22,17 @@
       Accept: "application/octet-stream"
   register: assets
 
-- name: "Download the latest release of {{ artifact_id }}"
+- name: "Create download folder for {{ artifact_id }} at {{ download_path }}"
+  become: yes
+  file: 
+    path: "{{ download_path }}"
+    state: directory
+
+- name: "Download the latest release of {{ artifact_id }}" 
+  become: yes
   get_url:
     url: "{{ assets.location }}"
-    dest: "{{ download_path }}"
+    dest: "{{ download_path }}/{{ archive_name }}"
     mode: 0755
   register: artifact_archive
 
@@ -53,6 +60,6 @@
   become: yes
   unarchive:
     remote_src: yes
-    src: "{{ download_path }}"
+    src: "{{ download_path }}/{{ archive_name }}"
     dest: "{{ unarchive_path }}"
   when: artifact_archive.changed or unarchive_folder_status.changed

@@ -3,5 +3,5 @@ github_repo: urpg-middleware
 artifact_id: urpg-middleware
 urpg_httpd_path: /var/www/html
 archive_name: "{{ artifact_id }}.active.zip"
-download_path: "{{ ansible_env.HOME }}/{{ archive_name }}"
+download_path: "/opt/{{ artifact_id }}"
 unarchive_path: "{{ urpg_httpd_path }}/{{ artifact_id }}"

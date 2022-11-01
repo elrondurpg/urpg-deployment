@@ -4,6 +4,18 @@
     name: java
     state: present
 
+- name: Create {{ application_group_name }} user group
+  become: yes
+  group:
+    name: "{{ application_group_name }}"
+    state: present
+
+- name: Create {{ application_user_name }} user
+  become: yes
+  group:
+    name: "{{ application_user_name }}"
+    state: present
+
 - name: "Get the latest release metadata of {{ artifact_id }}"
   uri:
     url: "https://api.github.com/repos/{{github_user}}/{{github_repo}}/releases/latest"
@@ -28,16 +40,25 @@
       Accept: "application/octet-stream"
   register: assets
 
-- name: Create urpg-server folder
+- name: "Create download folder for {{ artifact_id }} at {{ download_path }}"
+  become: yes
   file: 
-    path: "{{ ansible_env.HOME }}/urpg-server"
+    path: "{{ download_path }}"
     state: directory
 
 - name: "Download the latest release of {{ artifact_id }}"
+  become: yes
   get_url:
     url: "{{ assets.location }}"
-    dest: "{{ jar_destination }}"
+    dest: "{{ download_path }}/{{ jar_name }}"
     mode: 0755
+  register: jar_file
+
+- name: "Create log file directory at /var/log/{{ artifact_id }}"
+  become: yes
+  file: 
+    path: "/var/log/{{ artifact_id }}"
+    state: directory
 
 - name: Install URPG Server service file
   become: yes
@@ -55,16 +76,15 @@
     daemon_reload: yes
   when: service_file.changed
 
-- name: Ensure URPG Server is running; don't restart if it's already running and the service file wasn't changed
-  become: yes
+- name: Ensure URPG Server is running; don't restart if it's already running and nothing changed
   service:
     name: urpgserver 
     state: started
-  when: service_file.changed == false
+  when: service_file.changed == false and jar_file.changed == false
 
-- name: Restart URPG Server because the config file changed
+- name: Restart URPG Server because something changed
   become: yes
   service:
     name: urpgserver
     state: restarted
-  when: service_file.changed
+  when: service_file.changed or jar_file.changed
