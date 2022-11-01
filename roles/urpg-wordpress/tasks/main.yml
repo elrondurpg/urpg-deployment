@@ -1,0 +1,180 @@
+- name: Install EPEL Repo with Yum
+  become: yes
+  yum: 
+    name: https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+    state: present
+
+- name: Install Remi Repo with Yum 
+  become: yes
+  yum:
+    name: https://rpms.remirepo.net/enterprise/remi-release-7.rpm
+    state: present
+
+- name: Install PHP Extensions with Yum
+  become: yes
+  yum: name={{ item }}
+  loop: "{{ php_modules }}"
+  register: php_module_installs_for_wordpress
+
+- set_fact: 
+    num_installed_php_modules_for_wordpress: "{{ php_module_installs_for_wordpress.results | selectattr('changed', 'true') | list | length }}"
+
+- name: Restart HTTPD if we installed PHP modules
+  become: yes
+  service:
+    name: httpd
+    state: restarted
+  when: num_installed_php_modules_for_wordpress|int > 0
+
+- name: Check whether there are any Wordpress users. If not, we need to run the Wordpress install.
+  community.mysql.mysql_query:
+    login_db: "{{ wordpress_database_name }}"
+    query: select count(*) users_count from wp_users;
+  register: wp_users_query
+  ignore_errors: true
+
+- set_fact:
+    wp_users_count: wp_users_query.query_result[0][0].users_count
+  ignore_errors: true
+
+- name: Download and unpack latest WordPress
+  become: yes
+  unarchive:
+    src: https://wordpress.org/latest.tar.gz
+    dest: "{{ download_path }}"
+    remote_src: yes
+    creates: "wordpress"
+  when: wp_users_count is not defined or wp_users_count == 0
+
+- name: Set ownership
+  become: yes
+  file:
+    path: "{{ download_path }}/{{ artifact_id }}"
+    state: directory
+    recurse: yes
+    owner: apache
+    group: apache
+  when: wp_users_count is not defined or wp_users_count == 0
+
+- name: Set permissions for directories
+  become: yes
+  shell: "/usr/bin/find {{ download_path }}/{{ artifact_id }}/ -type d -exec chmod 750 {} \\;"
+  when: wp_users_count is not defined or wp_users_count == 0
+
+- name: Set permissions for files
+  become: yes
+  shell: "/usr/bin/find {{ download_path }}/{{ artifact_id }}/ -type f -exec chmod 640 {} \\;"
+  when: wp_users_count is not defined or wp_users_count == 0
+ 
+- name: Copy sample wordpress config file
+  become: yes
+  command: mv {{ download_path }}/{{ artifact_id }}/wp-config-sample.php {{ download_path }}/{{ artifact_id }}/wp-config.php creates={{ download_path }}/{{ artifact_id }}/wp-config.php
+  when: wp_users_count is not defined or wp_users_count == 0
+
+- name: Update WordPress config file
+  become: yes
+  lineinfile:
+    path: "{{ download_path }}/{{ artifact_id }}/wp-config.php"
+    regexp: "{{item.regexp}}"
+    line: "{{item.line}}"
+  with_items:
+    - {'regexp': "define\\( 'DB_NAME', '(.)+' \\);", 'line': "define( 'DB_NAME', '{{ wordpress_database_name }}' );"}
+    - {'regexp': "define\\( 'DB_USER', '(.)+' \\);", 'line': "define( 'DB_USER', '{{ wordpress_service_user_name }}' );"}
+    - {'regexp': "define\\( 'DB_PASSWORD', '(.)+' \\);", 'line': "define( 'DB_PASSWORD', '{{ wp_admin_password }}' );"}
+  when: wp_users_count is not defined or wp_users_count == 0
+
+- name: Complete Wordpress install
+  uri:
+    url: https://{{ domain_name }}/{{ artifact_id }}/wp-admin/install.php?step=2
+    method: POST
+    body_format: form-urlencoded
+    body:
+      weblog_title: "{{ site_title }}"
+      user_name: "{{ site_admin_username }}"
+      admin_email: "{{ site_admin_email }}"
+      admin_password: "{{ wp_admin_password }}"
+      admin_password2: "{{ wp_admin_password }}"
+      pw_weak: 1
+  when: wp_users_count is not defined or wp_users_count == 0
+
+- name: Change Wordpress permalink structure to "Post name"
+  community.mysql.mysql_query:
+    login_db: "{{ wordpress_database_name }}"
+    query: update wp_options set option_value="/%postname%/" where option_name = "permalink_structure"
+
+- name: Change Wordpress home URL to "/info"
+  community.mysql.mysql_query:
+    login_db: "{{ wordpress_database_name }}"
+    query: update wp_options set option_value="https://{{ domain_name }}" where option_name = "home"
+
+- name: Check if Wordpress directory exists
+  stat:
+    path: "{{ download_path }}/{{ artifact_id }}"
+  register: wordpress_directory
+
+- name: Change Wordpress site URL to "/"
+  community.mysql.mysql_query:
+    login_db: "{{ wordpress_database_name }}"
+    query: update wp_options set option_value="https://{{ domain_name }}" where option_name = "siteurl"
+  when: wordpress_directory.stat.exists
+
+- name: Copy wordpress folder to 'info'
+  become: yes
+  copy:
+    remote_src: true
+    src: "{{ download_path }}/{{ artifact_id }}/"
+    dest: "{{ download_path }}/info"
+  when: wordpress_directory.stat.exists
+
+- name: Remove wordpress folder 
+  become: yes
+  file:
+    path: "{{ download_path }}/{{ artifact_id }}"
+    state: absent
+  when: wordpress_directory.stat.exists
+
+- name: Copy index.php file to web root
+  become: yes
+  copy:
+    remote_src: true
+    src: "{{ download_path }}/info/index.php"
+    dest: "{{ download_path }}/index.php"
+  when: wordpress_directory.stat.exists
+
+- name: Remove unneeded files
+  become: yes 
+  file: 
+    path: "{{ download_path }}/info/{{ item }}"
+    state: absent
+  with_items:
+    - .htaccess
+    - wp-config-sample.php
+    - readme.html
+
+- name: Remove .htaccess file
+  become: yes 
+  file: 
+    path: "{{ download_path }}/info/.htaccess"
+    state: absent
+
+- name: Update WordPress root index.php file
+  become: yes
+  lineinfile:
+    path: "{{ download_path }}/index.php"
+    regexp: "require __DIR__ . '/wp-blog-header.php';"
+    line: "require __DIR__ . '/info/wp-blog-header.php';"
+  when: wordpress_directory.stat.exists
+
+- name: Set ownership
+  become: yes
+  file:
+    path: "{{ download_path }}/info"
+    state: directory
+    recurse: yes
+    owner: apache
+    group: apache
+
+- name: Set permissions for directories
+  become: yes
+  shell: "/usr/bin/find {{ download_path }}/info/ -type d -exec chmod 755 {} \\;"
+  when: wordpress_directory.stat.exists

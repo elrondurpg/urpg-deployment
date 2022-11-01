@@ -1,0 +1,3 @@
+domain_name: demo.pokemonurpg.com
+wordpress_service_user_name: site_secure
+wordpress_database_name: site_store

@@ -1,6 +1,6 @@
-- name: "Get the latest release metadata of {{ artifact_id }}"
+- name: "Get the latest release metadata of {{ artifact_id }} version {{ version_to_release }}"
   uri:
-    url: "https://api.github.com/repos/{{github_user}}/{{github_repo}}/releases/latest"
+    url: "https://api.github.com/repos/{{github_user}}/{{github_repo}}/releases/tags/{{ version_to_release }}"
     return_content: yes
     headers:
       Authorization: "token {{ artifact_download_token }}"
@@ -11,7 +11,7 @@
   vars:
     query: "[?starts_with(name,'{{ artifact_id }}')].url | [0]"  
 
-- name: "Get the latest release URI of {{ artifact_id }}"
+- name: "Get the release URI of {{ artifact_id }} version {{ version_to_release }}"
   uri:
     url: "{{ binary_asset_url }}"
     return_content: no
@@ -28,11 +28,11 @@
     path: "{{ download_path }}"
     state: directory
 
-- name: "Download the latest release of {{ artifact_id }}" 
+- name: "Download {{ artifact_id }} version {{ version_to_release }}" 
   become: yes
   get_url:
     url: "{{ assets.location }}"
-    dest: "{{ download_path }}/{{ archive_name }}"
+    dest: "{{ download_path }}/{{ artifact_id }}.active.{{ archive_extension }}"
     mode: 0755
   register: artifact_archive
 
@@ -60,6 +60,6 @@
   become: yes
   unarchive:
     remote_src: yes
-    src: "{{ download_path }}/{{ archive_name }}"
+    src: "{{ download_path }}/{{ artifact_id }}.active.{{ archive_extension }}"
     dest: "{{ unarchive_path }}"
   when: artifact_archive.changed or unarchive_folder_status.changed

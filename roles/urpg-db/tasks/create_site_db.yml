@@ -1,0 +1,17 @@
+- name: Create Wordpress database
+  community.mysql.mysql_db:
+    name: "{{ wordpress_database_name }}"
+
+- name: Create the Wordpress service user @ localhost
+  community.mysql.mysql_user:
+    name: "{{ wordpress_service_user_name }}"
+    password: '{{ wp_admin_password | mandatory }}'
+    priv: '{{ wordpress_database_name }}.*:SELECT,INSERT,UPDATE,CREATE,DELETE'
+    host: "localhost"
+
+- name: Create the Wordpress service user @ %
+  community.mysql.mysql_user:
+    name: "{{ wordpress_service_user_name }}"
+    password: '{{ wp_admin_password | mandatory }}'
+    priv: '{{ wordpress_database_name }}.*:SELECT,INSERT,UPDATE,CREATE,DELETE'
+    host: "%"

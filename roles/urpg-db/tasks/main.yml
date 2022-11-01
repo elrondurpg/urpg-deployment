@@ -4,3 +4,4 @@
     - install.yml
     - secure.yml
     - create_urpg_db.yml
+    - create_site_db.yml

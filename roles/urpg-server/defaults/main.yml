@@ -1,8 +1,10 @@
+version_to_release: v2.0.0-alpha
 application_group_name: urpgserver
 application_user_name: urpgserver
 github_user: elrondurpg
 github_repo: urpg-server
 artifact_id: urpg-server
-jar_name: "{{ artifact_id }}.active.jar"
+archive_extension: jar
 java_home: /usr
 download_path: "/opt/{{ artifact_id }}"
+use_secure_mode: false

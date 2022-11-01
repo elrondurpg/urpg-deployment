@@ -77,6 +77,10 @@ Group apache
 # in which case these default settings will be overridden for the
 # virtual host being defined.
 #
+{{ '#' if use_secure_mode == false else '' }}<VirtualHost *:80>
+{{ '#' if use_secure_mode == false else '' }}    ServerName {{ domain_name }}
+{{ '#' if use_secure_mode == false else '' }}    Redirect permanent / https://{{ domain_name }}/
+{{ '#' if use_secure_mode == false else '' }}</VirtualHost>
 
 #
 # ServerAdmin: Your address, where problems with the server should be
@@ -162,9 +166,21 @@ DocumentRoot "/var/www/html"
     SetEnv WEB_SECURE {{ urpg_webapps_using_secure_mode }}
     SetEnv SESSION_TAG {{ urpg_webapps_session_suffix }}
     SetEnv FRONTEND_ORIGIN {{ urpg_webapps_protocol }}{{ urpg_webapps_host }}:{{ urpg_webapps_port }}
+
+    RewriteEngine on
+    RewriteCond %{HTTP_HOST} ^{{ domain_name }}$
+    RewriteCond %{REQUEST_URI} !^/{{ urpg_wordpress_folder }}/
+    RewriteCond %{REQUEST_URI} !^/{{ urpg_webapps_folder }}/
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.*)$ /{{ urpg_wordpress_folder }}/$1
+    RewriteCond %{HTTP_HOST} ^{{ domain_name }}$
+    RewriteRule ^(/)?$ /{{ urpg_wordpress_folder }} [L]
 </Directory>
 
-<Directory "{{ urpg_webapps_path }}">
+<Directory "{{ web_root }}/{{ urpg_wordpress_folder }}">
+  php_value upload_max_filesize 16M
+
   RewriteEngine On
 
   # If an existing asset or directory is requested go to it as it is 
@@ -173,7 +189,19 @@ DocumentRoot "/var/www/html"
   RewriteRule ^ - [L]
 
   # If the requested resource doesn't exist, use index.html 
-  RewriteRule ^ index.html
+  RewriteRule ^ index.php
+</Directory>
+
+<Directory "{{ web_root }}/{{ urpg_webapps_folder }}">
+  RewriteEngine On
+
+  # If an existing asset or directory is requested go to it as it is 
+  RewriteCond %{DOCUMENT_ROOT}%{REQUEST_URI} -f [OR]
+  RewriteCond %{DOCUMENT_ROOT}%{REQUEST_URI} -d
+  RewriteRule ^ - [L]
+
+  # If the requested resource doesn't exist, use index.html 
+  RewriteRule ^ /info
 </Directory>
 
 #

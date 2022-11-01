@@ -1,0 +1,6 @@
+php_modules: [ 'php82.x86_64', 'php82-php-gd', 'php82-php-mbstring', 'php82-php-xml', 'php82-php-pecl-xmlrpc', 'php82-php-soap', 'php82-php-intl', 'php82-php-pecl-zip', 'php82-php-mysqlnd.x86_64' ]
+artifact_id: wordpress
+download_path: "/var/www/html"
+site_title: Pokemon URPG
+site_admin_username: Admin
+site_admin_email: elrondurpg@gmail.com

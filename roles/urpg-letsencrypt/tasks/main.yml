@@ -1,0 +1,6 @@
+- name: Perform Let's Encrypt-related setup tasks
+  include_tasks: "{{ item }}"
+  loop:
+    - install-certificate.yml
+    - reconfigure-httpd.yml
+    - reconfigure-urpg-server.yml

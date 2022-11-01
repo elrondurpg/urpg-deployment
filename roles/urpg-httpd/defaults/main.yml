@@ -1,7 +1,11 @@
-urpg_server_port: 8080
-urpg_webapps_protocol: http://
 urpg_webapps_host: demo.pokemonurpg.com
-urpg_webapps_port: 80
-urpg_webapps_using_secure_mode: 0
 urpg_webapps_session_suffix: -dev
-urpg_webapps_path: /var/www/html/urpg-webapps
+web_root: /var/www/html
+urpg_wordpress_folder: info
+urpg_webapps_folder: urpg-webapps
+urpg_webapps_protocol: https://
+urpg_webapps_using_secure_mode: 1
+urpg_server_port: 8443
+urpg_webapps_port: 443
+should_restart: false
+use_secure_mode: false

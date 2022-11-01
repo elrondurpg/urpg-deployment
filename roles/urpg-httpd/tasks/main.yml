@@ -33,4 +33,4 @@
   service:
     name: httpd
     state: restarted
-  when: config_file.changed
+  when: config_file.changed or should_restart

@@ -12,13 +12,14 @@
 
 - name: Create {{ application_user_name }} user
   become: yes
-  group:
+  user:
     name: "{{ application_user_name }}"
     state: present
+    group: "{{ application_group_name }}"
 
-- name: "Get the latest release metadata of {{ artifact_id }}"
+- name: "Get the release metadata of {{ artifact_id }} version {{ version_to_release }}"
   uri:
-    url: "https://api.github.com/repos/{{github_user}}/{{github_repo}}/releases/latest"
+    url: "https://api.github.com/repos/{{github_user}}/{{github_repo}}/releases/tags/{{ version_to_release }}"
     return_content: yes
     headers:
       Authorization: "token {{ artifact_download_token }}"
@@ -29,7 +30,7 @@
   vars:
     query: "[?starts_with(name,'{{ artifact_id }}')].url | [0]"   
 
-- name: "Get the latest release URI of {{ artifact_id }}"
+- name: "Get the release URI of {{ artifact_id }} version {{ version_to_release }}"
   uri:
     url: "{{ binary_asset_url }}"
     return_content: no
@@ -46,11 +47,11 @@
     path: "{{ download_path }}"
     state: directory
 
-- name: "Download the latest release of {{ artifact_id }}"
+- name: "Download {{ artifact_id }} version {{ version_to_release }}"
   become: yes
   get_url:
     url: "{{ assets.location }}"
-    dest: "{{ download_path }}/{{ jar_name }}"
+    dest: "{{ download_path }}/{{ artifact_id }}.active.{{ archive_extension }}"
     mode: 0755
   register: jar_file
 
@@ -59,6 +60,8 @@
   file: 
     path: "/var/log/{{ artifact_id }}"
     state: directory
+    owner: "{{ application_user_name }}"
+    group: "{{ application_group_name }}"
 
 - name: Install URPG Server service file
   become: yes
@@ -70,6 +73,17 @@
     group: root
   register: service_file
 
+- name: Install URPG Server application.properties file
+  become: yes
+  template:
+    src: 'application.properties.j2'
+    dest: '{{ download_path }}/application.properties'
+    mode: '644'
+    owner: root
+    group: root
+  register: properties_file
+  when: use_secure_mode
+
 - name: Invoke systemctl daemon reload if URPG Server service file was changed
   become: yes
   systemd:
@@ -77,14 +91,15 @@
   when: service_file.changed
 
 - name: Ensure URPG Server is running; don't restart if it's already running and nothing changed
+  become: yes
   service:
     name: urpgserver 
     state: started
-  when: service_file.changed == false and jar_file.changed == false
+  when: service_file.changed == false and jar_file.changed == false and properties_file.changed == false
 
 - name: Restart URPG Server because something changed
   become: yes
   service:
     name: urpgserver
     state: restarted
-  when: service_file.changed or jar_file.changed
+  when: service_file.changed or jar_file.changed or properties_file.changed

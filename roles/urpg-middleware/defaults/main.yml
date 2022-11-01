@@ -1,7 +1,9 @@
+version_to_release: v1.0.0-alpha
 github_user: elrondurpg
 github_repo: urpg-middleware
 artifact_id: urpg-middleware
 urpg_httpd_path: /var/www/html
-archive_name: "{{ artifact_id }}.active.zip"
+archive_extension: zip
 download_path: "/opt/{{ artifact_id }}"
 unarchive_path: "{{ urpg_httpd_path }}/{{ artifact_id }}"
+php_modules: [ 'php82.x86_64', 'php82-php-cli.x86_64', 'php82-php.x86_64', 'php82-php-fpm.x86_64' ]

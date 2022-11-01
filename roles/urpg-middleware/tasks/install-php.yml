@@ -10,33 +10,11 @@
     name: https://rpms.remirepo.net/enterprise/remi-release-7.rpm
     state: present
 
-- name: Install PHP with Yum 
+- name: Install PHP Extensions with Yum
   become: yes
-  yum:
-    name: php82.x86_64
-    state: present
-  register: php_yum
-
-- name: Install PHP CLI with Yum 
-  become: yes
-  yum:
-    name: php82-php-cli.x86_64
-    state: present
-  register: php_cli_yum
-
-- name: Install PHP Apache module with Yum 
-  become: yes
-  yum:
-    name: php82-php.x86_64
-    state: present
-  register: php_apache_yum
-
-- name: Install PHP FPM with Yum 
-  become: yes
-  yum:
-    name: php82-php-fpm.x86_64
-    state: present
-  register: php_fpm_yum
+  yum: name={{ item }}
+  loop: "{{ php_modules }}"
+  register: php_module_installs_for_middleware
 
 - name: Configure PHP-FPM to start on server boot
   become: yes
@@ -50,9 +28,12 @@
     name: php82-php-fpm
     state: started
 
-- name: Restart HTTPD because the config file changed
+- set_fact: 
+    num_installed_php_modules_for_middleware: "{{ php_module_installs_for_middleware.results | selectattr('changed', 'true') | list | length }}"
+
+- name: Restart HTTPD because we installed PHP modules for middleware
   become: yes
   service:
     name: httpd
     state: restarted
-  when: php_yum.changed or php_cli_yum.changed or php_apache_yum.changed or php_fpm_yum.changed
+  when: num_installed_php_modules_for_middleware|int > 0

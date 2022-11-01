@@ -1,0 +1,6 @@
+- name: "Reinstall URPG Server configuration with SSL support"
+  include_role: 
+    name: urpg-server
+  vars: 
+    use_secure_mode: true
+    keystore_path: "{{ letsencrypt_certs_dir }}/{{ domain_name }}.p12"

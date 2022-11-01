@@ -16,7 +16,7 @@ Environment="CLIENT_ID={{ urpg_server_client_id }}"
 Environment="CLIENT_SECRET={{ urpg_server_client_secret }}"
 Environment="REDIRECT_URI={{ urpg_server_redirect_uri }}"
 WorkingDirectory={{ download_path }}
-ExecStart={{ java_home }}/bin/java -jar {{ download_path }}/{{ jar_name }}
+ExecStart={{ java_home }}/bin/java -jar {{ download_path }}/{{ artifact_id }}.active.{{ archive_extension }}
 ExecStop=/bin/kill -15 $MAINPID
 
 [Install]
