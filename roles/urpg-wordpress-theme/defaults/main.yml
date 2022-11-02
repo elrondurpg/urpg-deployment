@@ -1,0 +1,8 @@
+version_to_release: v1.0.0-alpha
+github_user: elrondurpg
+github_repo: urpg-wordpress-theme
+artifact_id: urpg-wordpress-theme
+urpg_httpd_path: /var/www/html
+archive_extension: zip
+download_path: "/opt/{{ artifact_id }}"
+unarchive_path: "{{ urpg_httpd_path }}/{{ artifact_id }}"

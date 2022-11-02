@@ -1,16 +1,18 @@
 - hosts: localhost
   roles:
     - role: urpg-db
-      tags: [ db ]
+      tags: [ db, urpgdb, urpg-db ]
     - role: urpg-server
       tags: [ java, server, urpgserver, urpg-server ]
     - role: urpg-httpd
-      tags: [ httpd ]
+      tags: [ httpd, urpghttpd, urpg-httpd ]
     - role: urpg-letsencrypt
-      tags: [ letsencrypt, ssl, cert, certificate ]
+      tags: [ letsencrypt, ssl, cert, certificate, urpgletsencrypt, urpg-letsencrypt ]
     - role: urpg-middleware
-      tags: [ middleware, php ]
+      tags: [ middleware, php, urpg-middleware, urpgmiddleware ]
     - role: urpg-webapps
       tags: [ angular, web, webapps, urpgwebapps, urpg-webapps ]
     - role: urpg-wordpress
-      tags: [ wordpress, wp ]
+      tags: [ wordpress, wp, urpg-wordpress, urpgwordpress ]
+    - role: urpg-wordpress-theme
+      tags: [ theme, wp-theme, wordpress-theme, urpg-wordpress-theme, urpgwordpresstheme ]
