@@ -117,15 +117,15 @@ Among other functionality, this theme turns off the Wordpress toolbar for Wordpr
 	source urpg_db.sql
 ```	
 11. Obtain a copy of the contents of the live Wordpress site.
-	a. On the live URPG host, log into Wordpress and navigate to the following page: https://pokemonurpg.com/wp/wp-admin/export.php
-	b. Click **Download Export File**
+	- On the live URPG host, log into Wordpress and navigate to the following page: https://pokemonurpg.com/wp/wp-admin/export.php
+	- Click **Download Export File**
 12. Import the contents of the Wordpress site to the new host.
-	a. On the new URPG host, log into Wordpress and navigate to the following page: https://<your domain here>/wp-admin/import.php
-	b. Click **Install Now** under **Wordpress**
-	c. Click **Run Importer**
-	d. Click **Choose file** and browse to the file you exported from the live site
-	e. Click **Upload file and import**
-	f. Click **Submit**
-	g. Go to **Posts** and delete any dummy posts that were included with the Wordpress installation.
+	- On the new URPG host, log into Wordpress and navigate to the following page: https://<your domain here>/wp-admin/import.php
+	- Click **Install Now** under **Wordpress**
+	- Click **Run Importer**
+	- Click **Choose file** and browse to the file you exported from the live site
+	- Click **Upload file and import**
+	- Click **Submit**
+	- Go to **Posts** and delete any dummy posts that were included with the Wordpress installation.
 
 \* You can add tags to the end of the ansible-playbook command in order to run one or more roles in isolation. See `plays/deploy.yml` for a list of tags that correspond to each role.
