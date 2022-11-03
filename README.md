@@ -106,7 +106,7 @@ Among other functionality, this theme turns off the Wordpress toolbar for Wordpr
 ```
 3. Run the following command to encrypt the Ansible vault you created in the previous step: `ansible-vault encrypt <vault_filename>`
 4. Open the file `plays/host_vars/localhost.yml` and update the value of the `domain_name` variable to your domain name. 
-5\*. Run the following command to deploy all URPG resources using the urpg-deployment playbook: `cd ~/urpg-deployment; ansible-playbook plays/deploy.yml -e @<vault_filename> --ask-vault-pass`
+5. \*Run the following command to deploy all URPG resources using the urpg-deployment playbook: `cd ~/urpg-deployment; ansible-playbook plays/deploy.yml -e @<vault_filename> --ask-vault-pass`
 6. On the live URPG host, run the following command to obtain a copy of the contents of the URPG DB: `sudo mysqldump --add-drop-table -u root -p URPG_DB > urpg_db.sql`
 7. Place the .sql file in an accessible location on your new host, e.g. `~/sql/urpg-db.sql`
 8. Navigate to the directory where you placed the .sql file containing the contents of the URPG DB, e.g. `cd ~/sql`
