@@ -1,7 +1,10 @@
 # URPG Deployment with Ansible
 
 The purpose of this repository is to provide a single, easy-to-understand and easy-to-use method for deploying URPG's technology resources. 
-The primary function of this repository is provided in the Ansible playbook `plays/deploy.yml`. This playbook installs all resources on your local host.
+The primary function of this repository is provided in the Ansible playbook `plays/deploy.yml`. 
+
+This playbook installs all resources on your local host.
+
 Please read on to learn what it does and how to use it. 
 
 ## Prerequisites
