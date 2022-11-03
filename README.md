@@ -90,7 +90,7 @@ Among other functionality, this theme turns off the Wordpress toolbar for Wordpr
 	sudo yum install git -y
 	git clone https://github.com/elrondurpg/urpg-deployment.git
 ```	
-2. Create a file named `~/.ansible.enc` with the following contents. Insert your own values:
+2. Create a file with the following contents. Insert your own values and note the file name for use in the next step:
 ```
 	mysql_root_password: 
 	urpg_db_password: 
@@ -101,8 +101,8 @@ Among other functionality, this theme turns off the Wordpress toolbar for Wordpr
 	keystore_password: 
 	wp_admin_password: 
 ```
-3. Run the following command to encrypt the Ansible vault you created in the previous step: `ansible-vault encrypt ~/.ansible.enc`
-4\*. Run the following command to deploy all URPG resources using the urpg-deployment playbook: `cd ~/urpg-deployment; ansible-playbook plays/deploy.yml -e @~/.ansible.enc --ask-vault-pass`
+3. Run the following command to encrypt the Ansible vault you created in the previous step: `ansible-vault encrypt <vault_filename>`
+4\*. Run the following command to deploy all URPG resources using the urpg-deployment playbook: `cd ~/urpg-deployment; ansible-playbook plays/deploy.yml -e @<vault_filename> --ask-vault-pass`
 5. On the live URPG host, run the following command to obtain a copy of the contents of the URPG DB: `sudo mysqldump --add-drop-table -u root -p URPG_DB > urpg_db.sql`
 6. Place the .sql file in an accessible location on your new host, e.g. `~/sql/urpg-db.sql`
 7. Navigate to the directory where you placed the .sql file containing the contents of the URPG DB, e.g. `cd ~/sql`
