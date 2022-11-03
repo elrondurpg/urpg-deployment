@@ -8,3 +8,4 @@ download_path: "/opt/{{ artifact_id }}"
 unarchive_path: "{{ urpg_httpd_path }}/info/wp-content/themes/{{ artifact_id }}"
 urpg_webapps_artifact_id: "urpg-webapps"
 urpg_webapps_path: "{{ urpg_httpd_path }}/{{ urpg_webapps_artifact_id }}"
+urpg_wordpress_theme_name: URPG

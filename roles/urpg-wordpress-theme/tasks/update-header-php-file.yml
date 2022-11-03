@@ -1,0 +1,130 @@
+- name: Update theme header.php file with base href
+  become: yes
+  replace:
+    path: "{{ unarchive_path }}/header.php"
+    regexp: "<!--base href goes here-->"
+    replace: "<base href=\"/urpg-webapps/\">"
+
+- name: Update theme header.php file with viewport meta
+  become: yes
+  replace:
+    path: "{{ unarchive_path }}/header.php"
+    regexp: "<!--viewport meta goes here-->"
+    replace: "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">"
+
+- name: Update theme header.php file with angular stylesheet marker
+  become: yes
+  replace:
+    path: "{{ unarchive_path }}/header.php"
+    regexp: "<!--angular stylesheet goes here-->"
+    replace: "<!--link rel=\"stylesheet\" href=\"styles file name\"-->"
+
+- name: Find all Angular styles files in the {{ urpg_webapps_artifact_id }} folder on the webserver
+  become: yes
+  find:
+    paths: "{{ urpg_webapps_path }}"
+    patterns: 'styles.*.css'
+  register: styles_files
+
+- name: Update theme header.php file with exact angular stylesheet name
+  become: yes
+  replace:
+    path: "{{ unarchive_path }}/header.php"
+    regexp: "^.*<.*link rel=\"stylesheet\" href=\"style.*\".*>.*$"
+    replace: "<link rel=\"stylesheet\" href=\"{{ styles_files.files[0].path | regex_search('styles.[a-f0-9]+') }}.css\">"
+  when: styles_files.files is defined and styles_files.files|length > 0
+
+- name: Update theme header.php file with app-root and let it occupy space before loading
+  become: yes
+  replace:
+    path: "{{ unarchive_path }}/header.php"
+    regexp: "<!--app-root goes here-->"
+    replace: "<urpg-root loadcomponent=\"urpg-site-header\" style=\"height: 56px; display: block;\"></urpg-root>"
+
+- name: Update theme header.php file with angular runtime script marker
+  become: yes
+  replace:
+    path: "{{ unarchive_path }}/header.php"
+    regexp: "<!--angular runtime script goes here-->"
+    replace: "<!--script src=\"runtime file name\" type=\"module\"></script-->"
+
+- name: Find all Angular runtime script files in the {{ urpg_webapps_artifact_id }} folder on the webserver
+  become: yes
+  find:
+    paths: "{{ urpg_webapps_path }}"
+    patterns: 'runtime.*.js'
+  register: runtime_files
+
+- name: Update theme header.php file with exact angular runtime script name
+  become: yes
+  replace:
+    path: "{{ unarchive_path }}/header.php"
+    regexp: "^.*<.*script src=\"runtime.*\" type=\"module\"></script.*>.*$"
+    replace: "<script src=\"{{ runtime_files.files[0].path | regex_search('runtime.[a-f0-9]+') }}.js\" type=\"module\"></script>"
+  when: runtime_files.files is defined and runtime_files.files|length > 0
+
+- name: Update theme header.php file with angular polyfills script marker
+  become: yes
+  replace:
+    path: "{{ unarchive_path }}/header.php"
+    regexp: "<!--angular polyfills script goes here-->"
+    replace: "<!--script src=\"polyfills file name\" type=\"module\"></script-->"
+
+- name: Find all Angular polyfills script files in the {{ urpg_webapps_artifact_id }} folder on the webserver
+  become: yes
+  find:
+    paths: "{{ urpg_webapps_path }}"
+    patterns: 'polyfills.*.js'
+  register: polyfills_files
+
+- name: Update theme header.php file with exact angular polyfills script name
+  become: yes
+  replace:
+    path: "{{ unarchive_path }}/header.php"
+    regexp: "^.*<.*script src=\"polyfills.*\" type=\"module\"></script.*>.*$"
+    replace: "<script src=\"{{ polyfills_files.files[0].path | regex_search('polyfills.[a-f0-9]+') }}.js\" type=\"module\"></script>"
+  when: polyfills_files.files is defined and polyfills_files.files|length > 0
+
+- name: Update theme header.php file with angular scripts.js marker
+  become: yes
+  replace:
+    path: "{{ unarchive_path }}/header.php"
+    regexp: "<!--angular scripts.js goes here-->"
+    replace: "<!--script src=\"scripts file name\" type=\"module\"></script-->"
+
+- name: Find all Angular scripts.js files in the {{ urpg_webapps_artifact_id }} folder on the webserver
+  become: yes
+  find:
+    paths: "{{ urpg_webapps_path }}"
+    patterns: 'scripts.*.js'
+  register: scripts_files
+
+- name: Update theme header.php file with exact angular scripts.js name
+  become: yes
+  replace:
+    path: "{{ unarchive_path }}/header.php"
+    regexp: "^.*<.*script src=\"scripts.*\" type=\"module\"></script.*>.*$"
+    replace: "<script src=\"{{ scripts_files.files[0].path | regex_search('scripts.[a-f0-9]+') }}.js\" type=\"module\"></script>"
+  when: scripts_files.files is defined and scripts_files.files|length > 0
+
+- name: Update theme header.php file with angular main script marker
+  become: yes
+  replace:
+    path: "{{ unarchive_path }}/header.php"
+    regexp: "<!--angular main script goes here-->"
+    replace: "<!--script src=\"main file name\" type=\"module\"></script-->"
+
+- name: Find all Angular main script files in the {{ urpg_webapps_artifact_id }} folder on the webserver
+  become: yes
+  find:
+    paths: "{{ urpg_webapps_path }}"
+    patterns: 'main.*.copy-for-wp.js'
+  register: main_files
+
+- name: Update theme header.php file with exact angular main script name
+  become: yes
+  replace:
+    path: "{{ unarchive_path }}/header.php"
+    regexp: "^.*<.*script src=\"main.*\" type=\"module\"></script.*>.*$"
+    replace: "<script src=\"{{ main_files.files[0].path | regex_search('main.[a-f0-9]+') }}.copy-for-wp.js\" type=\"module\"></script>"
+  when: main_files.files is defined and main_files.files|length > 0

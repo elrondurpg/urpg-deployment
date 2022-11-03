@@ -77,10 +77,10 @@ Group apache
 # in which case these default settings will be overridden for the
 # virtual host being defined.
 #
-{{ '#' if use_secure_mode == false else '' }}<VirtualHost *:80>
-{{ '#' if use_secure_mode == false else '' }}    ServerName {{ domain_name }}
-{{ '#' if use_secure_mode == false else '' }}    Redirect permanent / https://{{ domain_name }}/
-{{ '#' if use_secure_mode == false else '' }}</VirtualHost>
+{{ '#' if use_secure_mode == 0 else '' }}<VirtualHost *:80>
+{{ '#' if use_secure_mode == 0 else '' }}    ServerName {{ domain_name }}
+{{ '#' if use_secure_mode == 0 else '' }}    Redirect permanent / https://{{ domain_name }}/
+{{ '#' if use_secure_mode == 0 else '' }}</VirtualHost>
 
 #
 # ServerAdmin: Your address, where problems with the server should be
@@ -159,13 +159,15 @@ DocumentRoot "/var/www/html"
     #
     Require all granted
 
-    SetEnv WEB_PROTOCOL {{ urpg_webapps_protocol }}
-    SetEnv WEB_HOST {{ urpg_webapps_host }}
-    SetEnv FRONTEND_PORT {{ urpg_webapps_port }}
-    SetEnv WEB_PORT {{ urpg_server_port }}
-    SetEnv WEB_SECURE {{ urpg_webapps_using_secure_mode }}
-    SetEnv SESSION_TAG {{ urpg_webapps_session_suffix }}
-    SetEnv FRONTEND_ORIGIN {{ urpg_webapps_protocol }}{{ urpg_webapps_host }}:{{ urpg_webapps_port }}
+    SetEnv DOMAIN {{ domain_name }}
+    SetEnv USE_SECURE_MODE {{ use_secure_mode }}
+    
+    SetEnv URPG_SERVER_PORT {{ urpg_server_port }}
+
+    SetEnv OAUTH2_URL {{ discord_oauth2_url }}
+	SetEnv OAUTH2_RESPONSE_TYPE code
+	SetEnv OAUTH2_CLIENT_ID {{ urpg_server_client_id }}
+	SetEnv OAUTH2_SCOPE identify
 
     RewriteEngine on
     RewriteCond %{HTTP_HOST} ^{{ domain_name }}$
@@ -201,7 +203,7 @@ DocumentRoot "/var/www/html"
   RewriteRule ^ - [L]
 
   # If the requested resource doesn't exist, use index.html 
-  RewriteRule ^ /info
+  RewriteRule ^ index.html
 </Directory>
 
 #
