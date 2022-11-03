@@ -117,10 +117,10 @@ Among other functionality, this theme turns off the Wordpress toolbar for Wordpr
 	source urpg_db.sql
 ```	
 11. Obtain a copy of the contents of the live Wordpress site.
-	- On the live URPG host, log into Wordpress and navigate to the following page: https://pokemonurpg.com/wp/wp-admin/export.php
+	- On the live URPG host, log into Wordpress and navigate to the following page: `https://pokemonurpg.com/wp/wp-admin/export.php`
 	- Click **Download Export File**
 12. Import the contents of the Wordpress site to the new host.
-	- On the new URPG host, log into Wordpress and navigate to the following page: https://<your domain here>/wp-admin/import.php
+	- On the new URPG host, log into Wordpress and navigate to the following page: `https://<your domain here>/wp-admin/import.php`
 	- Click **Install Now** under **Wordpress**
 	- Click **Run Importer**
 	- Click **Choose file** and browse to the file you exported from the live site
