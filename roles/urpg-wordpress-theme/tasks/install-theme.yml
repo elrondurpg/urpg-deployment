@@ -48,9 +48,6 @@
     path: "{{ unarchive_path }}"
   register: unarchive_path_data
 
-- debug: 
-    msg: "{{ unarchive_path_data }}"
-
 - name: Create {{ artifact_id }} folder on the webserver
   become: yes
   file: 
