@@ -48,6 +48,9 @@
     path: "{{ unarchive_path }}"
   register: unarchive_path_data
 
+- debug: 
+    msg: "{{ unarchive_path_data }}"
+
 - name: Create {{ artifact_id }} folder on the webserver
   become: yes
   file: 
@@ -63,3 +66,76 @@
     src: "{{ download_path }}/{{ artifact_id }}.active.{{ archive_extension }}"
     dest: "{{ unarchive_path }}"
   when: artifact_archive.changed or unarchive_folder_status.changed
+
+- name: Find all main.*.copy-for-wp.js files in the {{ urpg_webapps_artifact_id }} folder on the webserver
+  become: yes
+  find:
+    paths: "{{ urpg_webapps_path }}"
+    patterns: 'main.*.copy-for-wp.js'
+  register: main_files
+
+- name: Update main.*.copy-for-wp.js files with correct base href
+  become: yes
+  lineinfile:
+    path: "{{ item[0].path }}"
+    regexp: "{{ item[1].regexp }}"
+    line: "{{ item[1].line }}"
+  with_nested:
+    - "{{ main_files.files }}"
+    - [
+        {
+          'regexp': "useValue: '/urpg-webapps/'", 
+          'line': "useValue: '/'"
+        }
+      ]
+
+- name: Update main.*.copy-for-wp.js files to to use correct sessionService.login URL
+  become: yes
+  replace:
+    path: "{{ item.path }}"
+    regexp: "^.*this.sessionService.login\\(.urpg-webapps. \\+ this.route\\['_routerState'\\].snapshot.url\\);"
+    replace: "this.sessionService.login(this.route['_routerState'].snapshot.url);"
+  with_items: "{{ main_files.files }}"
+
+- name: Update main.*.copy-for-wp.js files to use window.location.href
+  become: yes
+  replace:
+    path: "{{ item.path }}"
+    regexp: "^.*this.router.navigateByUrl\\('/', {\n^.*skipLocationChange: true\n^.*}\\).then\\(\\(\\) => this.router.navigate\\(\\[url\\]\\)\\);"
+    replace: "window.location.href = '/urpg-webapps' + url;"
+  with_items: "{{ main_files.files }}"
+
+- name: Update theme header.php file with base href
+  become: yes
+  replace:
+    path: "{{ unarchive_path }}/header.php"
+    regexp: "<!--base href goes here-->"
+    replace: "<base href=\"/urpg-webapps/\">"
+
+- name: Update theme header.php file with viewport meta
+  become: yes
+  replace:
+    path: "{{ unarchive_path }}/header.php"
+    regexp: "<!--viewport meta goes here-->"
+    replace: "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">"
+
+- name: Update theme header.php file with angular stylesheet
+  become: yes
+  replace:
+    path: "{{ unarchive_path }}/header.php"
+    regexp: "<!--angular stylesheet goes here-->"
+    replace: "<link rel=\"stylesheet\" href=\"styles.142f45b89e80ca43.css\">"
+
+- name: Update theme header.php file with app-root
+  become: yes
+  replace:
+    path: "{{ unarchive_path }}/header.php"
+    regexp: "<!--app-root goes here-->"
+    replace: "<urpg-root loadcomponent=\"urpg-site-header\"></urpg-root>"
+
+- name: Update theme header.php file with angular scripts
+  become: yes
+  replace:
+    path: "{{ unarchive_path }}/header.php"
+    regexp: "<!--angular scripts go here-->"
+    replace: "<script src=\"runtime.1e14c86517b5c878.js\" type=\"module\"></script><script src=\"polyfills.1e57298bf69966e4.js\" type=\"module\"></script><script src=\"scripts.76dd17c1368a8a57.js\" defer></script><script src=\"main.ea962ed9770d955d.copy-for-wp.js\" type=\"module\"></script>"

@@ -71,11 +71,10 @@
     patterns: 'main.*.js'
   register: main_files
 
-# - name: Copy all main.*.js files in the {{ artifact_id }} folder on the webserver to be edited and used for wordpress
-#   become: yes
-#   copy:
-#     src: /srv/myfiles/foo.conf
-#     dest: /etc/foo.conf
-#     owner: foo
-#     group: foo
-#     mode: '0644'
+- name: Copy all main.*.js files in the {{ artifact_id }} folder on the webserver to be edited and used for wordpress
+  become: yes
+  copy:
+    remote_src: yes
+    src: "{{ item.path }}"
+    dest: "{{ unarchive_path }}/{{ item.path | regex_search('main.[a-f0-9]+') }}.copy-for-wp.js"
+  with_items: "{{ main_files.files }}"
