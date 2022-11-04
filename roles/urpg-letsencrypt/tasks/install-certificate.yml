@@ -14,7 +14,7 @@
 
 - name: Check whether the {{ letsencrypt_certs_dir }}/fullchain_{{ domain_name }}.crt file on the webserver exists
   stat: 
-    path: "{{ unarchive_path }}"
+    path: "{{ letsencrypt_certs_dir }}/fullchain_{{ domain_name }}.crt"
   register: certificate_file
 
 - find:

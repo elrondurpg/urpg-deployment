@@ -1,4 +1,4 @@
-- name: Perform wordpress theme-related setup tasks
+- name: Perform HTTPD setup tasks
   include_tasks: "{{ item }}"
   loop:
     - install-php.yml

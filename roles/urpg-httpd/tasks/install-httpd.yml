@@ -10,6 +10,15 @@
     name: httpd
     enabled: yes
 
+- name: Check whether the /etc/httpd/conf.d/ssl.conf file exists
+  stat: 
+    path: /etc/httpd/conf.d/ssl.conf
+  register: signal_to_use_secure
+
+- set_fact:
+    use_secure_mode: 1
+  when: signal_to_use_secure.stat.exists
+
 - name: Install HTTPD configuration file
   become: yes
   template:
@@ -38,7 +47,7 @@
     backup: yes
     owner: root
     group: root
-  when: use_secure_mode == 1
+  when: use_secure_mode == 1 and certificate_file_path is defined and key_file_path is defined
   register: ssl_config_file
 
 - name: Ensure HTTPD is running; don't restart if it's already running and the config file wasn't changed

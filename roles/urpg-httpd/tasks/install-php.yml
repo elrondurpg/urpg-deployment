@@ -3,12 +3,18 @@
   yum: 
     name: https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
     state: present
+  register: install_epel_result
+  until: "install_epel_result is not failed"
+  retries: 1
 
 - name: Install Remi Repo with Yum 
   become: yes
   yum:
     name: https://rpms.remirepo.net/enterprise/remi-release-7.rpm
     state: present
+  register: install_remi_result
+  until: "install_remi_result is not failed"
+  retries: 1
 
 - name: Install PHP Extensions with Yum
   become: yes
