@@ -1,19 +1,7 @@
-- name: Install HTTPD SSL Module with Yum 
-  become: yes
-  yum:
-    name: mod_ssl
-    state: present
-  register: ssl_dependency
-
 - name: "Reinstall HTTPD configuration with SSL support"
   include_role: 
     name: urpg-httpd
   vars: 
     use_secure_mode: 1
-
-- name: Restart HTTPD because we installed the SSL module
-  become: yes
-  service:
-    name: httpd
-    state: restarted
-  when: ssl_dependency.changed
+    certificate_file_path: "{{ letsencrypt_certs_dir }}/fullchain_{{ domain_name }}.crt"
+    key_file_path: "{{ letsencrypt_keys_dir }}/{{ domain_name }}.key"

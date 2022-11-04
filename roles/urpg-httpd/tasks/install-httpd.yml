@@ -21,16 +21,36 @@
     group: root
   register: config_file
 
+- name: Install HTTPD SSL Module with Yum 
+  become: yes
+  yum:
+    name: mod_ssl
+    state: present
+  when: use_secure_mode == 1
+  register: ssl_dependency
+
+- name: Install SSL configuration file
+  become: yes
+  template:
+    src: 'ssl.conf.j2'
+    dest: '/etc/httpd/conf.d/ssl.conf'
+    mode: '0644'
+    backup: yes
+    owner: root
+    group: root
+  when: use_secure_mode == 1
+  register: ssl_config_file
+
 - name: Ensure HTTPD is running; don't restart if it's already running and the config file wasn't changed
   become: yes
   service:
     name: httpd 
     state: started
-  when: config_file.changed == false
+  when: config_file.changed == false and ssl_config_file.changed == false and ssl_dependency.changed == false
 
 - name: Restart HTTPD because the config file changed
   become: yes
   service:
     name: httpd
     state: restarted
-  when: config_file.changed or should_restart
+  when: config_file.changed or ssl_dependency.changed or ssl_config_file.changed or should_restart

@@ -12,6 +12,11 @@
   - csrs
   - keys
 
+- name: Check whether the {{ letsencrypt_certs_dir }}/fullchain_{{ domain_name }}.crt file on the webserver exists
+  stat: 
+    path: "{{ unarchive_path }}"
+  register: certificate_file
+
 - find:
     paths: "{{ letsencrypt_certs_dir }}"
     pattern: "fullchain_{{ domain_name }}.crt"
@@ -21,19 +26,19 @@
 - name: "Generate a Let's Encrypt account key"
   become: yes
   shell: "openssl genrsa 4096 | sudo tee {{ letsencrypt_account_key }}"
-  when: certificate_about_to_expire.files | length > 0
+  when: certificate_about_to_expire.files | length > 0 or not certificate_file.stat.exists
 
 - name: "Generate Let's Encrypt private key"
   become: yes
   shell: "openssl genrsa 4096 | sudo tee {{ letsencrypt_keys_dir }}/{{ domain_name }}.key"
-  when: certificate_about_to_expire.files | length > 0
+  when: certificate_about_to_expire.files | length > 0 or not certificate_file.stat.exists
 
 - name: "Generate Let's Encrypt CSR"
   become: yes
   shell: "openssl req -new -sha256 -key {{ letsencrypt_keys_dir }}/{{ domain_name }}.key -subj \"/CN={{ domain_name }}\" | tee {{ letsencrypt_csrs_dir }}/{{ domain_name }}.csr"
   args:
     executable: /bin/bash
-  when: certificate_about_to_expire.files | length > 0
+  when: certificate_about_to_expire.files | length > 0 or not certificate_file.stat.exists
 
 - name: "Begin Let's Encrypt challenges"
   become: yes
@@ -51,7 +56,7 @@
     force: yes
     deactivate_authzs: yes
   register: acme_challenge_my_domain
-  when: certificate_about_to_expire.files | length > 0
+  when: certificate_about_to_expire.files | length > 0 or not certificate_file.stat.exists
 
 - name: "Create .well-known/acme-challenge directory"
   become: yes
@@ -61,7 +66,7 @@
     owner: root
     group: root
     mode: u=rwx,g=rx,o=rx
-  when: certificate_about_to_expire.files | length > 0
+  when: certificate_about_to_expire.files | length > 0 or not certificate_file.stat.exists
 
 - name: "Implement http-01 challenge files"
   become: yes
@@ -73,7 +78,7 @@
     mode: u=rw,g=r,o=r
   with_items:
   - "{{ domain_name }}"
-  when: certificate_about_to_expire.files | length > 0
+  when: certificate_about_to_expire.files | length > 0 or not certificate_file.stat.exists
 
 - name: "Complete Let's Encrypt challenges"
   become: yes
@@ -90,17 +95,17 @@
     data: "{{ acme_challenge_my_domain }}"
     force: yes
     deactivate_authzs: yes
-  when: certificate_about_to_expire.files | length > 0
+  when: certificate_about_to_expire.files | length > 0 or not certificate_file.stat.exists
   register: ssl_certificate
 
 - name: "Create PKCS12 Keystore for certificate"
   become: yes
   shell: "openssl pkcs12 -export -in {{ letsencrypt_certs_dir }}/fullchain_{{ domain_name }}.crt -inkey {{ letsencrypt_keys_dir }}/{{ domain_name }}.key -out {{ letsencrypt_certs_dir }}/{{ domain_name }}.p12 -name {{ domain_name }} -password pass:{{ keystore_password }} -CAfile {{ letsencrypt_certs_dir }}/chain_{{ domain_name }}.crt -caname root"
-  when: certificate_about_to_expire.files | length > 0
+  when: certificate_about_to_expire.files | length > 0 or not certificate_file.stat.exists
 
 - name: "Remove .well-known/acme-challenge directory"
   become: yes
   file:
     path: /var/www/html/.well-known/acme-challenge
     state: absent
-  when: certificate_about_to_expire.files | length > 0
+  when: certificate_about_to_expire.files | length > 0 or not certificate_file.stat.exists

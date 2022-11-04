@@ -44,7 +44,7 @@
     dest: "{{ download_path }}"
     remote_src: yes
     creates: "wordpress"
-  when: wp_users_count is not defined or wp_users_count == 0
+  when: wp_users_query.failed or wp_users_count == 0
 
 - name: Set ownership
   become: yes
@@ -54,22 +54,22 @@
     recurse: yes
     owner: apache
     group: apache
-  when: wp_users_count is not defined or wp_users_count == 0
+  when: wp_users_query.failed or wp_users_count == 0
 
 - name: Set permissions for directories
   become: yes
   shell: "/usr/bin/find {{ download_path }}/{{ artifact_id }}/ -type d -exec chmod 750 {} \\;"
-  when: wp_users_count is not defined or wp_users_count == 0
+  when: wp_users_query.failed or wp_users_count == 0
 
 - name: Set permissions for files
   become: yes
   shell: "/usr/bin/find {{ download_path }}/{{ artifact_id }}/ -type f -exec chmod 640 {} \\;"
-  when: wp_users_count is not defined or wp_users_count == 0
+  when: wp_users_query.failed or wp_users_count == 0
  
 - name: Copy sample wordpress config file
   become: yes
   command: mv {{ download_path }}/{{ artifact_id }}/wp-config-sample.php {{ download_path }}/{{ artifact_id }}/wp-config.php creates={{ download_path }}/{{ artifact_id }}/wp-config.php
-  when: wp_users_count is not defined or wp_users_count == 0
+  when: wp_users_query.failed or wp_users_count == 0
 
 - name: Update WordPress config file
   become: yes
@@ -81,7 +81,7 @@
     - {'regexp': "define\\( 'DB_NAME', '(.)+' \\);", 'line': "define( 'DB_NAME', '{{ wordpress_database_name }}' );"}
     - {'regexp': "define\\( 'DB_USER', '(.)+' \\);", 'line': "define( 'DB_USER', '{{ wordpress_service_user_name }}' );"}
     - {'regexp': "define\\( 'DB_PASSWORD', '(.)+' \\);", 'line': "define( 'DB_PASSWORD', '{{ wp_admin_password }}' );"}
-  when: wp_users_count is not defined or wp_users_count == 0
+  when: wp_users_query.failed or wp_users_count == 0
 
 - name: Complete Wordpress install
   uri:
@@ -95,7 +95,7 @@
       admin_password: "{{ wp_admin_password }}"
       admin_password2: "{{ wp_admin_password }}"
       pw_weak: 1
-  when: wp_users_count is not defined or wp_users_count == 0
+  when: wp_users_query.failed or wp_users_count == 0
 
 - name: Change Wordpress permalink structure to "Post name"
   community.mysql.mysql_query:

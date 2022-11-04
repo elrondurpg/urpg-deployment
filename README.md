@@ -81,13 +81,8 @@ Among other functionality, this theme turns off the Wordpress toolbar for Wordpr
 1. Log into your host and run the following commands: 
 ```
 	sudo yum update -y
-	python3 -m pip install --user ansible-core>=2.2
-	sudo pip3 install pymysql
-		[ Note: Need to confirm whether I need 'sudo', or whether it needs to be run once with AND once without ]
-		[ Note: I am also curious whether this can be done through Ansible ]
+	python3 -m pip install --user ansible-core
 	sudo pip3 install jmespath
-		[ Note: Need to confirm whether I need 'sudo', or whether it needs to be run once with AND once without ]
-		[ Note: I am also curious whether this can be done through Ansible ]
 	sudo yum install git -y
 	git clone https://github.com/elrondurpg/urpg-deployment.git
 ```	
@@ -114,6 +109,24 @@ Among other functionality, this theme turns off the Wordpress toolbar for Wordpr
 	use URPG_DB
 	source urpg_db.sql
 ```	
+10. Export the users from the live Wordpress site. 
+	- On the live URPG host, log into Wordpress and click **Plugins**, then click **Add New**
+	- Search for the plugin named **Import and export users and customers**
+	- Click **Install Now**, then **Activate**
+	- Click **Export**
+	- Click **Download**
+11. Import the contents of the user export to the new host. 
+	- On the new URPG host, log into Wordpress and click **Plugins**, then click **Add New**
+	- Search for the plugin named **Import and export users and customers**
+	- Click **Install Now**, then **Activate**
+	- Click **Import**
+	- Click **Choose file** and choose your exported file
+	- Select the following options: 
+		- Update existing users? **Yes**
+		- Update emails? **Yes**
+		- Update roles for existing users? **Yes, update and override existing roles**
+		- Never update passwords? **Update passwords as it is described in documentation**
+	- Click **Start Importing**
 11. Obtain a copy of the contents of the live Wordpress site.
 	- On the live URPG host, log into Wordpress and navigate to the following page: `https://pokemonurpg.com/wp/wp-admin/export.php`
 	- Click **Download Export File**
