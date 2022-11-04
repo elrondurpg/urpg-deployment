@@ -43,7 +43,7 @@ The deployment playbook **will** later configure URPG Server to use port 8443 ov
 
 ### URPG HTTPD
 
-The urpg-httpd role installs an Apache HTTPD web server and updates its httpd.conf configuration file. 
+The urpg-httpd role installs PHP and an Apache HTTPD web server and updates its httpd.conf configuration file. 
 
 Initially, the HTTPD application will be installed and started without HTTPS support. This is necessary in order to support the challenge mechanism that will eventually allow the playbook to create a self-signed SSL certificate and **then** enable HTTPS support on your HTTPD web server.
 
@@ -60,7 +60,7 @@ The urpg-letsencrypt role creates a self-signed SSL certificate and installs it 
 
 ### URPG Middleware
 
-The urpg-middleware role installs a set of PHP files that are used by URPG Webapps to log into and send authenticated requests to the URPG Server APIs. It installs PHP version 8.2 and the PHP modules that are required by the middleware files. 
+The urpg-middleware role installs a set of PHP files that are used by URPG Webapps to log into and send authenticated requests to the URPG Server APIs. 
 
 ### URPG Wordpress
 
