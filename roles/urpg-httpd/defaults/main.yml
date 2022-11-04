@@ -5,3 +5,4 @@ use_secure_mode: 0
 urpg_server_port: 8443
 should_restart: false
 discord_oauth2_url: https://discordapp.com/api/oauth2/authorize
+php_modules: [ 'php82.x86_64', 'php82-php-cli.x86_64', 'php82-php.x86_64', 'php82-php-fpm.x86_64' ]
