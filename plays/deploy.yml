@@ -1,10 +1,12 @@
 - hosts: localhost
   tasks: 
     - name: Install PyMySQL dependency
+      become: yes
       pip: 
         executable: pip3
         name: pymysql
     - name: Install jmespath dependency
+      become: yes
       pip: 
         executable: pip3
         name: jmespath
