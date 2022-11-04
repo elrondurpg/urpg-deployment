@@ -1,4 +1,15 @@
 - hosts: localhost
+  tasks: 
+    - name: Install PyMySQL dependency
+      pip: 
+        executable: pip3
+        name: pymysql
+    - name: Install jmespath dependency
+      pip: 
+        executable: pip3
+        name: jmespath
+
+- hosts: localhost
   roles:
     - role: urpg-db
       tags: [ db, urpgdb, urpg-db ]
