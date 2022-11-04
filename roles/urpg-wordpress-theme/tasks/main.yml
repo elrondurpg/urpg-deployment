@@ -2,5 +2,4 @@
   include_tasks: "{{ item }}"
   loop:
     - install-theme.yml
-    - update-main-js-file.yml
     - update-header-php-file.yml

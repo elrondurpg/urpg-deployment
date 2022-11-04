@@ -72,9 +72,7 @@ Here is a summary of the custom configurations:
 
 ### URPG Wordpress Theme
 
-The urpg-wordpress-theme role installs the URPG Wordpress theme, makes it active, and injects information that allows the theme to use the site header defined in the URPG Webapps application. 
-
-Namely, this role updates the theme's header.php file to insert scripts derived from the URPG Webapps directory. Additionally, it copies one of those scripts and makes a few changes to allow Wordpress independent access to certain Angular-based components. 
+The urpg-wordpress-theme role installs the URPG Wordpress theme and makes it active. Additionally, it scans the /urpg-webapps/ directory to grab certain script names and injects them into the theme's header.php file to enable the site header. 
 
 Among other functionality, this theme turns off the Wordpress toolbar for Wordpress users by default. 
 
