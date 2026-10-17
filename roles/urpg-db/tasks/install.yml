@@ -1,7 +1,7 @@
 - name: Install MariaDB
   become: yes
   yum:
-    name: mariadb-server
+    name: mariadb105-server
     state: present
 
 - name: Enable lower case table names in my.cnf
