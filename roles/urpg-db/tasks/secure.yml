@@ -6,7 +6,7 @@
     state: present
     login_unix_socket: "{{ login_unix_socket | default(omit) }}"
     login_port: "{{ mysql_port }}"
-    #login_user: root
+    login_user: root
     #login_password: ""
     check_implicit_admin: yes
   when: mysql_root_password is defined
