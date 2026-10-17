@@ -1,5 +1,6 @@
 - name: Update MariaDB root password
   mysql_user:
+    become: yes
     name: 'root'
     host_all: true
     password: '{{ mysql_root_password | mandatory }}'
