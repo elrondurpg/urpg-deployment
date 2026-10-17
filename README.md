@@ -78,15 +78,24 @@ Among other functionality, this theme turns off the Wordpress toolbar for Wordpr
 
 ## Usage
 
+Go to https://bootstrap.pypa.io/get-pip.py and save its contents in a file called get-pip.py on your host.
+
 1. Log into your host and run the following commands: 
 ```
 	sudo yum update -y
+	python3 get-pip.py
+```
+	You may have a different version of python installed. If so, you may get an error saying `python3` could not be found. You'll have to figure out which version of python you have installed and use the correct command. 
+	Additionally, the version of `get-pip.py` you download may not be compatible with the version of python you have installed. If so, the `get-pip.py` script will tell you where to get the right version of `get-pip.py`. 
+	Finally, you may find that Ansible and other instructions in this file require a specific named version of `pip`.
+1. (continued) Run the following commands: 
+```
 	python3 -m pip install --user ansible-core
 	sudo pip3 install jmespath
 	sudo yum install git -y
 	git clone https://github.com/elrondurpg/urpg-deployment.git
 ```	
-2. Create a file with the following contents. Insert your own values and note the file name for use in the next step:
+2. Create a file in urpg-deployment with the following contents. Insert your own values and note the file name for use in the next step:
 ```
 	mysql_root_password: 
 	urpg_db_password: 
@@ -99,7 +108,8 @@ Among other functionality, this theme turns off the Wordpress toolbar for Wordpr
 ```
 3. Run the following command to encrypt the Ansible vault you created in the previous step: `ansible-vault encrypt <vault_filename>`
 4. Open the file `plays/host_vars/localhost.yml` and update the value of the `domain_name` variable to your domain name. 
-5. \*Run the following command to deploy all URPG resources using the urpg-deployment playbook: `cd ~/urpg-deployment; ansible-playbook plays/deploy.yml -e @<vault_filename> --ask-vault-pass`
+5. Run the following command to install all Ansible dependencies: `ansible-galaxy install -r requirements.yml`
+5. Run the following command to deploy all URPG resources using the urpg-deployment playbook: `cd ~/urpg-deployment; ansible-playbook plays/deploy.yml -e @<vault_filename> --ask-vault-pass`
 6. On the live URPG host, run the following command to obtain a copy of the contents of the URPG DB: `sudo mysqldump --add-drop-table -u root -p URPG_DB > urpg_db.sql`
 7. Place the .sql file in an accessible location on your new host, e.g. `~/sql/urpg-db.sql`
 8. Navigate to the directory where you placed the .sql file containing the contents of the URPG DB, e.g. `cd ~/sql`
