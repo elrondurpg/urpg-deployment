@@ -2,10 +2,10 @@
   mysql_user:
     #become: yes
     name: 'root'
-    host_all: true
+    #host_all: true
     password: '{{ mysql_root_password | mandatory }}'
-    state: present
-    login_unix_socket: "{{ login_unix_socket | default(omit) }}"
+    #state: present
+    #login_unix_socket: "{{ login_unix_socket | default(omit) }}"
     #login_user: root
   when: mysql_root_password is defined
 
