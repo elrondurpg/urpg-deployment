@@ -4,6 +4,14 @@
     name: mariadb105-server
     state: present
 
+- name: Add [mysqld] section to my.cnf if not present
+  become: yes
+  lineinfile:
+    dest: '/etc/my.cnf'
+    line: '[mysqld]'
+    state: present
+    backup: true
+
 - name: Enable lower case table names in my.cnf
   become: yes
   lineinfile:
