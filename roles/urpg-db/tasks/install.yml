@@ -22,6 +22,16 @@
     state: present
     backup: true
 
+- name: Disable symbolic links in my.cnf
+  become: yes
+  lineinfile:
+    dest: '/etc/my.cnf'
+    line: 'symbolic-links=0'
+    firstmatch: yes
+    insertafter: '.mysqld.'
+    state: present
+    backup: true
+
 # Verify with:
 # sudo systemctl list-unit-files | grep enabled
 - name: Configure MariaDB to start on server boot
@@ -36,4 +46,4 @@
   become: yes
   service: 
     name: mariadb
-    state: started
+    state: restarted
