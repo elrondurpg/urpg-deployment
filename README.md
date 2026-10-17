@@ -85,9 +85,9 @@ Go to https://bootstrap.pypa.io/get-pip.py and save its contents in a file calle
 	sudo yum update -y
 	python3 get-pip.py
 ```
-	You may have a different version of python installed. If so, you may get an error saying `python3` could not be found. You'll have to figure out which version of python you have installed and use the correct command. 
-	Additionally, the version of `get-pip.py` you download may not be compatible with the version of python you have installed. If so, the `get-pip.py` script will tell you where to get the right version of `get-pip.py`. 
-	Finally, you may find that Ansible and other instructions in this file require a specific named version of `pip`.
+You may have a different version of python installed. If so, you may get an error saying `python3` could not be found. You'll have to figure out which version of python you have installed and use the correct command. 
+Additionally, the version of `get-pip.py` you download may not be compatible with the version of python you have installed. If so, the `get-pip.py` script will tell you where to get the right version of `get-pip.py`. 
+Finally, you may find that Ansible and other instructions in this file require a specific named version of `pip`.
 1. (continued) Run the following commands: 
 ```
 	python3 -m pip install --user ansible-core
